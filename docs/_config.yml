@@ -8,12 +8,10 @@ titles_from_headings:
 prev_next_navigation:
 - bottom
 
-# TODO Modify the contents below for the specific project. NOTE THE INDENTATION!
-
-title: "Android App Starter"
-description: "Trust me, it'll be cool!"
+title: "NASA APoD"
+description: "NASA Astronomy Photo of the Day"
 author:
-  name: "DDC Student"
+  name: "Nick Bennett"
 
 # Do not change the following line.
   copyright: true
