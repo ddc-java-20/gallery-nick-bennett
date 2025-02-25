@@ -1,17 +1,27 @@
 package edu.cnm.deepdive.nasaapod.model.entity;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import java.net.URL;
 import java.time.LocalDate;
 
+@Entity(tableName = "apod")
 public class Apod {
 
+  @PrimaryKey(autoGenerate = true)
+  @ColumnInfo(name = "apod_id")
+  private long id;
+  
+  @ColumnInfo(index = true, collate = ColumnInfo.NOCASE)
   @Expose
   @NonNull
   private String title;
 
+  @ColumnInfo(collate = ColumnInfo.NOCASE)
   @Expose
   @SerializedName("explanation")
   private String description;
@@ -23,19 +33,29 @@ public class Apod {
   @Expose
   private String copyright;
 
+  @ColumnInfo(name = "media_type", index = true)
   @Expose
   @SerializedName("media_type")
   @NonNull
   private MediaType mediaType;
 
+  @ColumnInfo(name = "low_def_url")
   @Expose
   @SerializedName("url")
   @NonNull
   private URL lowDefUrl;
 
-  @Expose
+  @ColumnInfo(name = "high_def_url")@Expose
   @SerializedName("hdurl")
   private URL highDefUrl;
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
 
   @NonNull
   public String getTitle() {
@@ -99,9 +119,20 @@ public class Apod {
 
   public enum MediaType {
     @SerializedName("image")
-    IMAGE,
+    IMAGE(true),
     @SerializedName("video")
-    VIDEO
+    VIDEO(false);
+
+    private final boolean downloadable;
+
+    MediaType(boolean downloadable) {
+      this.downloadable = downloadable;
+    }
+
+    public boolean isDownloadable() {
+      return downloadable;
+    }
+    
   }
 
 }
