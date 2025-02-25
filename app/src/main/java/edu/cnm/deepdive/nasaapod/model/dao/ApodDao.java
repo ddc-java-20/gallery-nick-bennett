@@ -28,7 +28,10 @@ public interface ApodDao {
   @Query("SELECT * FROM apod WHERE date = :date")
   LiveData<Apod> select(LocalDate date);
 
-  @Query("SELECT * FROM apod WHERE date >= :startDate AND date < :endDate")
-  LiveData<List<Apod>> select(LocalDate startDate, LocalDate endDate);
+  @Query("SELECT * FROM apod WHERE date >= :startDate AND date < :endDate ORDER BY date ASC")
+  LiveData<List<Apod>> selectRange(LocalDate startDate, LocalDate endDate);
+
+  @Query("SELECT * FROM apod WHERE date >= :startDate ORDER BY date ASC")
+  LiveData<List<Apod>> selectOpenRange(LocalDate startDate);
 
 }
