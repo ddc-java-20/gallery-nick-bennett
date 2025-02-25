@@ -1,32 +1,34 @@
 package edu.cnm.deepdive.nasaapod.model.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
 import edu.cnm.deepdive.nasaapod.model.entity.Apod;
-import io.reactivex.rxjava3.core.Single;
-import java.util.Iterator;
+import io.reactivex.rxjava3.core.Completable;
+import java.time.LocalDate;
 import java.util.List;
 
 @Dao
 public interface ApodDao {
 
   @Insert(onConflict = OnConflictStrategy.IGNORE)
-  Single<List<Long>> insert(List<Apod> apods);
+  Completable insert(List<Apod> apods);
 
-  default Single<List<Apod>> insertAndUpdate(List<Apod> apods) {
-    return insert(apods)
-        .map((ids) -> {
-          Iterator<Apod> apodIter = apods.iterator();
-          Iterator<Long> idIter = ids.iterator();
-          while (apodIter.hasNext() && idIter.hasNext()) {
-            apodIter
-                .next()
-                .setId(idIter.next());
-          }
-          apods.removeIf((apod) -> apod.getId() < 0);
-          return apods;
-        });
-  }
-  
+  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  Completable insert(Apod apod);
+
+  @Query("DELETE FROM apod")
+  Completable deleteAll();
+
+  @Query("SELECT * FROM apod WHERE apod_id = :id")
+  LiveData<Apod> select(long id);
+
+  @Query("SELECT * FROM apod WHERE date = :date")
+  LiveData<Apod> select(LocalDate date);
+
+  @Query("SELECT * FROM apod WHERE date >= :startDate AND date < :endDate")
+  LiveData<List<Apod>> select(LocalDate startDate, LocalDate endDate);
+
 }
