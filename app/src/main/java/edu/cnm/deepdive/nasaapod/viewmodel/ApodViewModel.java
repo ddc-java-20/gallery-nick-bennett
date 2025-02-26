@@ -1,7 +1,10 @@
 package edu.cnm.deepdive.nasaapod.viewmodel;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import edu.cnm.deepdive.nasaapod.model.entity.Apod;
@@ -12,16 +15,20 @@ import java.util.List;
 @HiltViewModel
 public class ApodViewModel extends ViewModel {
 
+  private static final String TAG = ApodViewModel.class.getSimpleName();
+
   private final ApodRepository repository;
-  private final MutableLiveData<LocalDate> startDate;
-  private final MutableLiveData<LocalDate> endDate;
+  private final MutableLiveData<DateRange> dateRange;
   private final LiveData<List<Apod>> apods;
+  private final MutableLiveData<Throwable> throwable;
 
   public ApodViewModel(ApodRepository repository) {
     this.repository = repository;
-    startDate = new MutableLiveData<>();
-    endDate = new MutableLiveData<>();
-    apods = new MutableLiveData<>(); // FIXME: 2025-02-25 Use Transformations.
+    dateRange = new MutableLiveData<>();
+    apods = Transformations.switchMap(dateRange, (range) -> (range.endDate != null)
+        ? repository.get(range.startDate, range.endDate)
+        : repository.get(range.startDate));
+    throwable = new MutableLiveData<>();
   }
 
   public LiveData<List<Apod>> getApods() {
@@ -32,14 +39,43 @@ public class ApodViewModel extends ViewModel {
     return repository.get();
   }
 
+  @SuppressLint("CheckResult")
   public void setRange(LocalDate startDate, LocalDate endDate) {
-//    this.startDate.setValue(startDate);
-//    this.endDate.setValue(endDate);
+    throwable.setValue(null);
+    dateRange.setValue(new DateRange(startDate, endDate));
+    //noinspection ResultOfMethodCallIgnored
     repository
         .fetch(startDate, endDate)
         .subscribe(
-            // TODO: 2025-02-25 Perform an empty action on completable, and log and post on error.
+            () -> {},
+            this::postThrowable
         );
+  }
+
+  @SuppressLint("CheckResult")
+  public void setRange(LocalDate startDate) {
+    throwable.setValue(null);
+    dateRange.setValue(new DateRange(startDate));
+    //noinspection ResultOfMethodCallIgnored
+    repository
+        .fetch(startDate)
+        .subscribe(
+            () -> {},
+            this::postThrowable
+        );
+  }
+
+  private void postThrowable(Throwable throwable) {
+    Log.e(TAG, throwable.getMessage(), throwable);
+    this.throwable.postValue(throwable);
+  }
+
+  private record DateRange(LocalDate startDate, LocalDate endDate) {
+
+    public DateRange(LocalDate startDate) {
+      this(startDate, null);
+    }
+
   }
 
 }
