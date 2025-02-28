@@ -26,9 +26,6 @@ public class MainActivity extends AppCompatActivity {
   private ActivityMainBinding binding;
   private ApodViewModel viewModel;
 
-  @Inject
-  Picasso picasso;
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -45,17 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
   private void setupViewModel() {
     viewModel = new ViewModelProvider(this).get(ApodViewModel.class);
-    viewModel
-        .getApod()
-        .observe(this, (apod) -> {
-          if (apod != null) {
-            // TODO: 2025-02-26 Grab image (how?) and put in ImageView widget.
-            picasso
-                .load(apod.getLowDefUrl().toString())
-                .into(binding.image);
-          }
-        });
-    viewModel.setToday();
   }
 
 }
