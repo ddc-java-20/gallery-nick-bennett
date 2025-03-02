@@ -5,6 +5,6 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:gravity="center"
-  android:textAppearance="@style/DayTextAppearance"
+  android:textAppearance="@style/CalendarTextAppearance"
   style="@style/CalendarDay"
   tools:text="31"/>
