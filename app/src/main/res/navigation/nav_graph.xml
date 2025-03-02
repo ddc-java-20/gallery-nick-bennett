@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<navigation
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  app:startDestination="@id/calendar_fragment">
+
+  <fragment
+    android:id="@+id/calendar_fragment"
+    android:name="edu.cnm.deepdive.nasaapod.controller.CalendarFragment"
+    android:label="@string/app_name"
+    tools:layout="@layout/fragment_calendar"/>
+
+</navigation>

@@ -20,4 +20,10 @@
     <!-- TODO Customize your theme here. -->
   </style>
 
+  <style name="CalendarDay">
+    <item name="android:background">?android:selectableItemBackgroundBorderless</item>
+  </style>
+
+  <style name="DayTextAppearance" parent="TextAppearance.Material3.BodyLarge"/>
+
 </resources>

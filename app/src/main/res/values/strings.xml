@@ -1,2 +1,7 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <string name="first_apod_date" tools:ignore="TypographyDashes">1995-06-16</string>
+
 </resources>
