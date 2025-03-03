@@ -12,6 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import edu.cnm.deepdive.nasaapod.R;
 import edu.cnm.deepdive.nasaapod.adapter.DayBinder;
 import edu.cnm.deepdive.nasaapod.databinding.FragmentCalendarBinding;
+import edu.cnm.deepdive.nasaapod.model.entity.Apod;
 import edu.cnm.deepdive.nasaapod.viewmodel.ApodViewModel;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
+import java.util.Map;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
@@ -48,7 +50,7 @@ public class CalendarFragment extends Fragment {
     binding.calendar.setDayBinder(dayBinder);
     // TODO: 2025-03-03 Set month header binding on calendar.
     binding.calendar.setup(firstApodMonth, currentMonth, firstDayOfWeek);
-    // TODO: 2025-03-03 Set a month scroll listener on calendar. 
+    // TODO: 2025-03-03 Set a month scroll listener on calendar.
     return binding.getRoot();
   }
 
@@ -57,17 +59,9 @@ public class CalendarFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
     viewModel = new ViewModelProvider(requireActivity())
         .get(ApodViewModel.class);
-    YearMonth currentMonth = YearMonth.now();
-    YearMonth startingMonth = YearMonth.of(1995, Month.JUNE);
-    DayOfWeek firstDayOfWeek = WeekFields.of(Locale.getDefault()).getFirstDayOfWeek();
     viewModel
         .getApodMap()
-        .observe(getViewLifecycleOwner(), (apodMap) -> {
-          binding.calendar.setDayBinder(new DayBinder(apodMap));
-          binding.calendar.setup(startingMonth, currentMonth, firstDayOfWeek);
-          binding.calendar.scrollToMonth(currentMonth);
-        });
-    viewModel.setRange(currentMonth.atDay(1));
+        .observe(getViewLifecycleOwner(), this::handleApods);
     // TODO: 2025-02-28 Observe livedata and start asynchronous processes, as necessary.
   }
 
@@ -75,6 +69,18 @@ public class CalendarFragment extends Fragment {
   public void onDestroyView() {
     // TODO: 2025-02-28 Release references to binding.
     super.onDestroyView();
+  }
+
+  private void handleApods(Map<LocalDate, Apod> apodMap) {
+    Map<LocalDate, Apod> binderMap = dayBinder.getApodMap();
+    binderMap.clear();
+    binderMap.putAll(apodMap);
+    apodMap
+        .keySet()
+        .stream()
+        .map(YearMonth::from)
+        .distinct()
+        .forEach(binding.calendar::notifyMonthChanged);
   }
 
 }

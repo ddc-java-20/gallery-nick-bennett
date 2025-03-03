@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import edu.cnm.deepdive.nasaapod.model.entity.Apod;
 import edu.cnm.deepdive.nasaapod.service.ApodRepository;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,17 +23,18 @@ public class ApodViewModel extends ViewModel {
   private static final String TAG = ApodViewModel.class.getSimpleName();
 
   private final ApodRepository repository;
-  private final MutableLiveData<DateRange> dateRange;
+  private final MutableLiveData<YearMonth> yearMonth;
   private final LiveData<List<Apod>> apods;
+  private final MutableLiveData<Long> apodId;
   private final MutableLiveData<Throwable> throwable;
 
   @Inject
   ApodViewModel(ApodRepository repository) {
     this.repository = repository;
-    dateRange = new MutableLiveData<>();
-    apods = Transformations.switchMap(dateRange, (range) -> (range.endDate != null)
-        ? repository.get(range.startDate, range.endDate)
-        : repository.get(range.startDate));
+    yearMonth = new MutableLiveData<>(YearMonth.now());
+    apodId = new MutableLiveData<>();
+    apods = Transformations.switchMap(Transformations.distinctUntilChanged(yearMonth),
+        this::transformYearMonthToQuery);
     throwable = new MutableLiveData<>();
   }
 
@@ -41,7 +43,7 @@ public class ApodViewModel extends ViewModel {
   }
 
   public LiveData<Apod> getApod() {
-    return repository.get();
+    return Transformations.switchMap(Transformations.distinctUntilChanged(apodId), repository::get);
   }
 
   public LiveData<Map<LocalDate, Apod>> getApodMap() {
@@ -49,56 +51,29 @@ public class ApodViewModel extends ViewModel {
         .stream()
         .collect(Collectors.toMap(Apod::getDate, Function.identity())));
   }
-  
-  @SuppressLint("CheckResult")
-  public void setRange(LocalDate startDate, LocalDate endDate) {
-    throwable.setValue(null);
-    dateRange.setValue(new DateRange(startDate, endDate));
-    //noinspection ResultOfMethodCallIgnored
-    repository
-        .fetch(startDate, endDate)
-        .subscribe(
-            () -> {},
-            this::postThrowable
-        );
-  }
 
-  @SuppressLint("CheckResult")
-  public void setRange(LocalDate startDate) {
-    throwable.setValue(null);
-    dateRange.setValue(new DateRange(startDate));
-    //noinspection ResultOfMethodCallIgnored
-    repository
-        .fetch(startDate)
-        .subscribe(
-            () -> {},
-            this::postThrowable
-        );
+  public LiveData<YearMonth> getYearMonth() {
+    return yearMonth;
   }
 
   /** @noinspection ResultOfMethodCallIgnored*/
   @SuppressLint("CheckResult")
-  public void setToday() {
+  private LiveData<List<Apod>> transformYearMonthToQuery(YearMonth yearMonth) {
+    LocalDate startDate = yearMonth.minusMonths(1).atDay(1);
+    LocalDate endDate = yearMonth.plusMonths(2).atDay(1);
     throwable.setValue(null);
     repository
-        .fetch()
+        .fetch(startDate, endDate)
         .subscribe(
             () -> {},
-            this::postThrowable
+            throwable::setValue
         );
+    return repository.get(startDate, endDate);
   }
-  
+
   private void postThrowable(Throwable throwable) {
     Log.e(TAG, throwable.getMessage(), throwable);
     this.throwable.postValue(throwable);
-  }
-
-  private record DateRange(LocalDate startDate, LocalDate endDate) {
-
-    public DateRange(LocalDate startDate) {
-      this(startDate, null);
-    }
-
   }
 
 }
