@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import edu.cnm.deepdive.nasaapod.model.entity.Apod;
 import edu.cnm.deepdive.nasaapod.service.ApodRepository;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,26 +23,30 @@ public class ApodViewModel extends ViewModel {
   private static final String TAG = ApodViewModel.class.getSimpleName();
 
   private final ApodRepository repository;
-  private final MutableLiveData<DateRange> dateRange;
+  private final MutableLiveData<YearMonth> yearMonth;
   private final LiveData<List<Apod>> apods;
+  private final MutableLiveData<Long> apodId;
   private final MutableLiveData<Throwable> throwable;
 
   @Inject
   ApodViewModel(ApodRepository repository) {
     this.repository = repository;
-    dateRange = new MutableLiveData<>();
-    apods = Transformations.switchMap(dateRange, (range) -> (range.endDate != null)
-        ? repository.get(range.startDate, range.endDate)
-        : repository.get(range.startDate));
+    yearMonth = new MutableLiveData<>(YearMonth.now());
+    apodId = new MutableLiveData<>();
     throwable = new MutableLiveData<>();
+    apods = Transformations.switchMap(yearMonth, this::transformYearMonthToQuery);
   }
 
   public LiveData<List<Apod>> getApods() {
     return apods;
   }
 
+  public void setApodId(long apodId) {
+    this.apodId.setValue(apodId);
+  }
+
   public LiveData<Apod> getApod() {
-    return repository.get();
+    return Transformations.switchMap(Transformations.distinctUntilChanged(apodId), repository::get);
   }
 
   public LiveData<Map<LocalDate, Apod>> getApodMap() {
@@ -50,11 +55,25 @@ public class ApodViewModel extends ViewModel {
         .collect(Collectors.toMap(Apod::getDate, Function.identity())));
   }
   
+  public void setYearMonth(YearMonth yearMonth) {
+    this.yearMonth.setValue(yearMonth);
+  }
+
+  public LiveData<YearMonth> getYearMonth() {
+    return yearMonth;
+  }
+
+  private LiveData<List<Apod>> transformYearMonthToQuery(YearMonth month) {
+    LocalDate startDate = month.minusMonths(1).atDay(1);
+    LocalDate endDate = month.plusMonths(2).atDay(1);
+    fetch(startDate, endDate);
+    return repository.get(startDate, endDate);
+  }
+
+  /** @noinspection ResultOfMethodCallIgnored*/
   @SuppressLint("CheckResult")
-  public void setRange(LocalDate startDate, LocalDate endDate) {
+  private void fetch(LocalDate startDate, LocalDate endDate) {
     throwable.setValue(null);
-    dateRange.setValue(new DateRange(startDate, endDate));
-    //noinspection ResultOfMethodCallIgnored
     repository
         .fetch(startDate, endDate)
         .subscribe(
@@ -63,42 +82,9 @@ public class ApodViewModel extends ViewModel {
         );
   }
 
-  @SuppressLint("CheckResult")
-  public void setRange(LocalDate startDate) {
-    throwable.setValue(null);
-    dateRange.setValue(new DateRange(startDate));
-    //noinspection ResultOfMethodCallIgnored
-    repository
-        .fetch(startDate)
-        .subscribe(
-            () -> {},
-            this::postThrowable
-        );
-  }
-
-  /** @noinspection ResultOfMethodCallIgnored*/
-  @SuppressLint("CheckResult")
-  public void setToday() {
-    throwable.setValue(null);
-    repository
-        .fetch()
-        .subscribe(
-            () -> {},
-            this::postThrowable
-        );
-  }
-  
   private void postThrowable(Throwable throwable) {
     Log.e(TAG, throwable.getMessage(), throwable);
     this.throwable.postValue(throwable);
-  }
-
-  private record DateRange(LocalDate startDate, LocalDate endDate) {
-
-    public DateRange(LocalDate startDate) {
-      this(startDate, null);
-    }
-
   }
 
 }

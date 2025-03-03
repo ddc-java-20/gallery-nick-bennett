@@ -10,6 +10,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import com.squareup.picasso.Picasso;
 import dagger.hilt.android.AndroidEntryPoint;
 import edu.cnm.deepdive.nasaapod.R;
@@ -24,24 +28,33 @@ public class MainActivity extends AppCompatActivity {
   private static final String TAG = MainActivity.class.getSimpleName();
 
   private ActivityMainBinding binding;
-  private ApodViewModel viewModel;
+  private NavController navController;
+  private AppBarConfiguration appBarConfig;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setupUI();
-    setupViewModel();
+    setupNavigation();
+  }
+
+  @Override
+  public boolean onSupportNavigateUp() {
+    return NavigationUI.navigateUp(navController, appBarConfig);
   }
 
   private void setupUI() {
     binding = ActivityMainBinding.inflate(getLayoutInflater());
-    // TODO: 2025-02-26 Attach listeners to view widgets (fields in binding).
-    // TODO: 2025-02-26 Update state of view widgets.
     setContentView(binding.getRoot());
   }
 
-  private void setupViewModel() {
-    viewModel = new ViewModelProvider(this).get(ApodViewModel.class);
+  private void setupNavigation() {
+    appBarConfig = new AppBarConfiguration.Builder(R.id.calendar_fragment).build();
+    navController = ((NavHostFragment) binding
+        .navHostFragment
+        .getFragment()
+    ).getNavController();
+    NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig);
   }
 
 }

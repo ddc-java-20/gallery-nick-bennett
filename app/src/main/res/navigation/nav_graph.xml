@@ -9,6 +9,50 @@
     android:id="@+id/calendar_fragment"
     android:name="edu.cnm.deepdive.nasaapod.controller.CalendarFragment"
     android:label="@string/app_name"
-    tools:layout="@layout/fragment_calendar"/>
+    tools:layout="@layout/fragment_calendar">
+
+    <action
+      android:id="@+id/show_image"
+      app:destination="@id/image_fragment">
+
+      <argument
+        android:name="apod_id"
+        app:argType="long"/>
+
+    </action>
+
+  </fragment>
+
+  <fragment
+    android:id="@+id/image_fragment"
+    android:name="edu.cnm.deepdive.nasaapod.controller.ImageFragment"
+    tools:layout="@layout/fragment_image">
+
+    <argument
+      android:name="apod_id"
+      app:argType="long"/>
+
+    <action
+      android:id="@+id/show_details"
+      app:destination="@id/details_fragment">
+
+      <argument
+        android:name="apod_id"
+        app:argType="long"/>
+
+    </action>
+
+  </fragment>
+
+  <dialog
+    android:id="@+id/details_fragment"
+    android:name="edu.cnm.deepdive.nasaapod.controller.DetailsFragment"
+    tools:layout="@layout/fragment_details">
+
+    <argument
+      android:name="apod_id"
+      app:argType="long"/>
+
+  </dialog>
 
 </navigation>

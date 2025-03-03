@@ -14,6 +14,7 @@ import dagger.hilt.android.scopes.FragmentScoped;
 import edu.cnm.deepdive.nasaapod.R;
 import edu.cnm.deepdive.nasaapod.databinding.HeaderCalendarBinding;
 import java.time.DayOfWeek;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
@@ -24,10 +25,12 @@ import javax.inject.Inject;
 public class HeaderBinder implements MonthHeaderFooterBinder<ViewContainer> {
 
   private final LayoutInflater inflater;
+  private final DateTimeFormatter formatter;
 
   @Inject
   public HeaderBinder(@NonNull @ActivityContext Context context) {
     inflater = LayoutInflater.from(context);
+    formatter = DateTimeFormatter.ofPattern(context.getString(R.string.year_month_format));
   }
 
   @NonNull
@@ -53,11 +56,7 @@ public class HeaderBinder implements MonthHeaderFooterBinder<ViewContainer> {
     }
 
     public void bind(CalendarMonth calendarMonth) {
-      String monthName = calendarMonth
-          .getYearMonth()
-          .getMonth()
-          .getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault());
-      binding.monthName.setText(monthName);
+      binding.monthName.setText(calendarMonth.getYearMonth().format(formatter));
       if (!bound) {
         bound = true;
         ViewGroup headerRoot = binding.dayNames;

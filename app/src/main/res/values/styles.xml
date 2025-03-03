@@ -18,6 +18,7 @@
   <!-- Base application theme. -->
   <style name="AppTheme" parent="Theme.Material3.DayNight">
     <!-- TODO Customize your theme here. -->
+    <item name="colorOutOfMonth">@color/out_of_month</item>
   </style>
 
   <style name="CalendarDay">
@@ -26,7 +27,7 @@
 
   <style name="CalendarTextAppearance" parent="TextAppearance.Material3.BodyLarge"/>
 
-  <style name="CalendarTextAppearance.Month" parent="TextAppearance.Material3.TitleMedium"/>
+  <style name="CalendarTextAppearance.Month" parent="TextAppearance.Material3.TitleLarge"/>
 
   <style name="CalendarTextAppearance.DayHeader">
     <item name="android:textStyle">italic</item>
@@ -37,7 +38,13 @@
   </style>
 
   <style name="CalendarTextAppearance.AvailableDay.OutOfMonth">
-    <item name="android:textStyle">italic</item>
+    <item name="android:textColor">?attr/colorOutOfMonth</item>
+  </style>
+
+  <style name="Details" parent="Widget.Material3.TextInputLayout.FilledBox">
+    <item name="boxBackgroundMode">none</item>
+    <item name="boxStrokeColor">@android:color/transparent</item>
+    <item name="boxStrokeWidth">0dp</item>
   </style>
 
 </resources>

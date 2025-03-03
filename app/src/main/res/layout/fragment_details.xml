@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:id="@+id/title_image_container"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:gravity="center_horizontal|top"
+      app:layout_constraintTop_toTopOf="parent">
+
+      <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/title_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/half_dynamic_spacing"
+        style="@style/Details"
+        app:hintEnabled="true"
+        android:layout_weight="1">
+
+        <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/title"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:inputType="none"
+          android:clickable="false"
+          android:editable="false"
+          android:focusable="true"
+          android:textIsSelectable="true"
+          android:hint="@string/title_hint"
+          tools:ignore="Deprecated"/>
+
+      </com.google.android.material.textfield.TextInputLayout>
+
+      <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/thumbnail_description"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:layout_margin="@dimen/half_dynamic_spacing"
+        android:layout_weight="1"
+        tools:src="@android:drawable/gallery_thumb"/>
+
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/description_layout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="@dimen/half_dynamic_spacing"
+      style="@style/Details"
+      app:hintEnabled="true"
+      app:layout_constraintTop_toBottomOf="@id/title_image_container">
+
+      <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="none"
+        android:clickable="false"
+        android:editable="false"
+        android:focusable="true"
+        android:textIsSelectable="true"
+        android:hint="@string/description_hint"
+        tools:ignore="Deprecated"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/copyright_layout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="@dimen/half_dynamic_spacing"
+      style="@style/Details"
+      app:hintEnabled="true"
+      app:layout_constraintTop_toBottomOf="@id/description_layout">
+
+      <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/copyright"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="none"
+        android:clickable="false"
+        android:editable="false"
+        android:focusable="true"
+        android:textIsSelectable="true"
+        android:hint="@string/copyright_hint"
+        tools:ignore="Deprecated"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
