@@ -46,6 +46,10 @@ public class ApodViewModel extends ViewModel {
     return Transformations.switchMap(Transformations.distinctUntilChanged(apodId), repository::get);
   }
 
+  public void setApodId(long apodId) {
+    this.apodId.setValue(apodId);
+  }
+
   public LiveData<Map<LocalDate, Apod>> getApodMap() {
     return Transformations.map(apods, (apodList) -> apodList
         .stream()

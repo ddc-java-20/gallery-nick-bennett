@@ -1,5 +1,7 @@
 package edu.cnm.deepdive.nasaapod.controller;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 import com.kizitonwose.calendar.core.CalendarMonth;
 import dagger.hilt.android.AndroidEntryPoint;
 import edu.cnm.deepdive.nasaapod.R;
@@ -17,6 +21,7 @@ import edu.cnm.deepdive.nasaapod.adapter.DayBinder;
 import edu.cnm.deepdive.nasaapod.adapter.HeaderBinder;
 import edu.cnm.deepdive.nasaapod.databinding.FragmentCalendarBinding;
 import edu.cnm.deepdive.nasaapod.model.entity.Apod;
+import edu.cnm.deepdive.nasaapod.model.entity.Apod.MediaType;
 import edu.cnm.deepdive.nasaapod.viewmodel.ApodViewModel;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -51,8 +56,7 @@ public class CalendarFragment extends Fragment {
     DayOfWeek firstDayOfWeek = WeekFields.of(Locale.getDefault())
         .getFirstDayOfWeek();
     YearMonth currentMonth = YearMonth.now();
-    // TODO: 2025-03-03 Attach a listener to dayBinder.
-    dayBinder.setListener((apod) -> Log.d(TAG, apod.getDate().toString()));
+    dayBinder.setListener(this::showApod);
     binding = FragmentCalendarBinding.inflate(inflater, container, false);
     binding.calendar.setDayBinder(dayBinder);
     binding.calendar.setMonthHeaderBinder(headerBinder);
@@ -85,6 +89,16 @@ public class CalendarFragment extends Fragment {
   private Unit handleMonthScroll(CalendarMonth calendarMonth) {
     viewModel.setYearMonth(calendarMonth.getYearMonth());
     return Unit.INSTANCE;
+  }
+
+  private void showApod(Apod apod) {
+    if (apod.getMediaType() == MediaType.IMAGE) {
+      Navigation.findNavController(binding.getRoot())
+          .navigate(CalendarFragmentDirections.showImage(apod.getId()));
+    } else {
+      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(apod.getLowDefUrl().toString()));
+      startActivity(intent);
+    }
   }
 
   private void handleApods(Map<LocalDate, Apod> apodMap) {
